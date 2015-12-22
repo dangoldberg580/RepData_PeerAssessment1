@@ -7,7 +7,8 @@ output: html_document
 
 Loading Data, taking a look at the what is there...
 
-```{r}
+
+```r
 ActivityData <- read.csv("activity.csv", header = TRUE, sep = ",")
 ```
 
@@ -19,7 +20,8 @@ Calculating and graphing a few things:
 
 Note: I needed to convert the mean and median into characters to get them formatted to print on the graph. Also, since the mean and median overlapped, I separated the labels vertically to make them readable.
 
-```{r}
+
+```r
 # sum by date, convert to data frame, calculate mean and median
 NumberOfSteps <- tapply(ActivityData$steps, ActivityData$date, sum)
 NumberOfSteps <- as.data.frame(NumberOfSteps)
@@ -40,11 +42,14 @@ text(20000, 23, labels = medianLabel,  cex = 1, col = "blue")
 text(20000, 25, labels = meanLabel, cex = 1, col = "red")
 ```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
 Now let's look at the average daily activity pattern.
 I am plotting the average number of steps throughout the 2,355 five minute intervals in a 24 hour period.
 I'm adding a vertical line at the highest average in those time intervals.
 
-```{r}
+
+```r
 # average by interval, remove NA's for graphing, turn into data frame, add a column for intervals (from rownames), calculate max interval
 AvgStepsPerInterval <- tapply(ActivityData$steps, ActivityData$interval, mean, na.rm = TRUE)
 AvgStepsPerInterval <- as.data.frame(AvgStepsPerInterval)
@@ -57,21 +62,28 @@ plot(AvgStepsPerInterval$AvgStepsPerInterval ~ AvgStepsPerInterval$Interval, typ
 
 text(1200, MaxSteps, labels = "Interval 835 has the highest average number of steps (206.1698)")
 abline(v=Interval, col = "red", lwd = 2)
-
 ```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
 
 What effect do the missing data have on the outcome?
 
 How many values are missing?
 
-```{r}
+
+```r
 MissingData <- is.na(ActivityData$steps)
 length(MissingData[MissingData == TRUE])
 ```
 
+```
+## [1] 2304
+```
+
 I'll fill in approximate values using the mean of that interval that was calculated above.
 
-```{r}
+
+```r
 # Take a copy of the original data, subset the NAs only, fill in avg steps per interval, load back into the full data frame, take out NAs again
 ActivityDataAdj <- ActivityData
 x <- subset (ActivityDataAdj, is.na(ActivityDataAdj$steps))
@@ -97,15 +109,17 @@ medianLabel <- paste("Adjusted Median", formatMedian,  sep = " = ")
 meanLabel <- paste("Adjusted Mean", formatMean, sep = " = ")
 text(20000, 23, labels = medianLabel,  cex = 1, col = "blue")
 text(20000, 25, labels = meanLabel, cex = 1, col = "red")
-
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
 
 So - using the methodolgy of taking the mean of each interval and replacing the NAs - does not affect the outcome.
 
 Are there differences between weekdays and weekends?
 Using the combined (original + estimated steps) data, calculate and graph the difference between weekdays and weekends.
 
-```{r}
+
+```r
 CombinedData$DayOfWeek <- weekdays(as.Date(CombinedData$date))
 CombinedData$WeekDayOrWeekend[CombinedData$DayOfWeek %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")] <- "Weekday"
 CombinedData$WeekDayOrWeekend[CombinedData$DayOfWeek %in% c("Saturday", "Sunday")] <- "Weekend"
@@ -125,10 +139,9 @@ dfPlot <- rbind(WeekDayTotal, WeekEndTotal)
 library(lattice)
 xyplot(AvgNumberOfSteps ~ Interval | WeekEndOrDay, data = dfPlot, ylab = "Average Number of Steps",
        xlab = "Intervals", layout = c(1, 2), type = "l", lty = 1)
-
 ```
 
-library(knitr)
-knit(input = "PA1_template.Rmd", output = "PA1_template.md")
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+
 
 
